@@ -120,21 +120,21 @@ bool Model::filterWorker(const std::vector<cv::Mat>& inputPlanes, const std::vec
 	// input : inputPlanes
 	// kernel : weightMatrices
 	for (int opIndex = beginningIndex; opIndex < (beginningIndex + nWorks);	opIndex++) {
-		cv::Mat outputPlane = cv::Mat::zeros(ipSize, CV_32FC1);
+		outputPlanes[opIndex] = cv::Mat::zeros(ipSize, CV_32FC1);
 
 		for (int ipIndex = 0; ipIndex < nInputPlanes; ipIndex++) {
 			cv::Mat filterOutput = cv::Mat(ipSize, CV_32FC1);
 
 			cv::filter2D(inputPlanes[ipIndex], filterOutput, -1, weightMatrices[opIndex][ipIndex], cv::Point(-1, -1), 0.0, cv::BORDER_REPLICATE);
 
-			cv::add(outputPlane, filterOutput, outputPlane);
+			cv::add(outputPlanes[opIndex], filterOutput, outputPlanes[opIndex]);
 		}
 
-		cv::add(outputPlane, biases[opIndex], outputPlane);
+		cv::add(outputPlanes[opIndex], biases[opIndex], outputPlanes[opIndex]);
 		cv::Mat moreThanZero = cv::Mat(ipSize, CV_32FC1);
 		cv::Mat lessThanZero = cv::Mat(ipSize, CV_32FC1);
-		cv::max(outputPlane, 0.0, moreThanZero);
-		cv::min(outputPlane, 0.0, lessThanZero);
+		cv::max(outputPlanes[opIndex], 0.0, moreThanZero);
+		cv::min(outputPlanes[opIndex], 0.0, lessThanZero);
 		cv::scaleAdd(lessThanZero, 0.1, moreThanZero, outputPlanes[opIndex]);
 
 	} // for index
