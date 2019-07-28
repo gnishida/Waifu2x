@@ -78,30 +78,29 @@ bool Model::loadModelFromJSONObject(picojson::object& jsonObj) {
 	picojson::array &wOutputPlane = jsonObj["weight"].get<picojson::array>();
 
 	// setting weight matrices
+	int32_t opIndex = 0;
 	for (auto&& wInputPlaneV : wOutputPlane) {
 		picojson::array &wInputPlane = wInputPlaneV.get<picojson::array>();
 
+		int32_t ipIndex = 0;
 		for (auto&& weightMatV : wInputPlane) {
 			picojson::array &weightMat = weightMatV.get<picojson::array>();
-			cv::Mat writeMatrix = cv::Mat::zeros(kernelSize, kernelSize,
-			CV_32FC1);
+			weights[opIndex][ipIndex] = cv::Mat::zeros(kernelSize, kernelSize, CV_32FC1);
 
 			for (int writingRow = 0; writingRow < kernelSize; writingRow++) {
 				auto& weightMatRowV = weightMat.at(writingRow);
-				picojson::array &weightMatRow = weightMatRowV.get<
-						picojson::array>();
+				picojson::array &weightMatRow = weightMatRowV.get<picojson::array>();
 
 				for (int index = 0; index < kernelSize; index++) {
-					writeMatrix.at<float>(writingRow, index) =
-							weightMatRow[index].get<double>();
+					weights[opIndex][ipIndex].at<float>(writingRow, index) = weightMatRow[index].get<double>();
 				} // for(weightMatRow) (writing 1 row finished)
 
 			} // for(weightMat) (writing 1 matrix finished)
 
-			weights.at(matProgress) = std::move(writeMatrix);
-			matProgress++;
+			ipIndex++;
 		} // for(wInputPlane) (writing matrices in set of wInputPlane finished)
 
+		opIndex++;
 	} //for(wOutputPlane) (writing all matrices finished)
 
 	// setting biases
@@ -113,24 +112,20 @@ bool Model::loadModelFromJSONObject(picojson::object& jsonObj) {
 	return true;
 }
 
-bool Model::filterWorker(const std::vector<cv::Mat>& inputPlanes, const std::vector<cv::Mat>& weightMatrices, std::vector<cv::Mat>& outputPlanes, unsigned int beginningIndex, unsigned int nWorks) const {
+bool Model::filterWorker(const std::vector<cv::Mat>& inputPlanes, const std::vector<std::vector<cv::Mat>>& weightMatrices, std::vector<cv::Mat>& outputPlanes, unsigned int beginningIndex, unsigned int nWorks) const {
 	cv::ocl::setUseOpenCL(false); // disable OpenCL Support(temporary)
 
 	cv::Size ipSize = inputPlanes[0].size();
 	// filter processing
 	// input : inputPlanes
 	// kernel : weightMatrices
-	for (int opIndex = beginningIndex; opIndex < (beginningIndex + nWorks);
-			opIndex++) {
-
-		int wMatIndex = nInputPlanes * opIndex;
+	for (int opIndex = beginningIndex; opIndex < (beginningIndex + nWorks);	opIndex++) {
 		cv::Mat outputPlane = cv::Mat::zeros(ipSize, CV_32FC1);
 
 		for (int ipIndex = 0; ipIndex < nInputPlanes; ipIndex++) {
 			cv::Mat filterOutput = cv::Mat(ipSize, CV_32FC1);
 
-			cv::filter2D(inputPlanes[ipIndex], filterOutput, -1, weightMatrices[wMatIndex + ipIndex],
-					cv::Point(-1, -1), 0.0, cv::BORDER_REPLICATE);
+			cv::filter2D(inputPlanes[ipIndex], filterOutput, -1, weightMatrices[opIndex][ipIndex], cv::Point(-1, -1), 0.0, cv::BORDER_REPLICATE);
 
 			cv::add(outputPlane, filterOutput, outputPlane);
 		}
@@ -215,7 +210,7 @@ cv::Size modelUtility::getBlockSize(){
 void Model::printWeightMatrix() {
 
 	for (auto&& weightMatrix : weights) {
-		std::cout << weightMatrix << std::endl;
+		//std::cout << weightMatrix << std::endl;
 	}
 
 }

@@ -26,7 +26,7 @@ class Model {
 private:
 	int nInputPlanes;
 	int nOutputPlanes;
-	std::vector<cv::Mat> weights;
+	std::vector<std::vector<cv::Mat>> weights;
 	std::vector<float> biases;
 	int kernelSize;
 
@@ -38,7 +38,7 @@ private:
 	bool loadModelFromJSONObject(picojson::object& jsonObj);
 
 	// thread worker function
-	bool filterWorker(const std::vector<cv::Mat>& inputPlanes, const std::vector<cv::Mat>& weightMatrices, std::vector<cv::Mat>& outputPlanes, unsigned int beginningIndex, unsigned int nWorks) const;
+	bool filterWorker(const std::vector<cv::Mat>& inputPlanes, const std::vector<std::vector<cv::Mat>>& weightMatrices, std::vector<cv::Mat>& outputPlanes, unsigned int beginningIndex, unsigned int nWorks) const;
 
 public:
 	// ctor and dtor
@@ -54,8 +54,7 @@ public:
 			std::exit(-1);
 		} // kH == kW
 
-		weights = std::vector<cv::Mat>(nInputPlanes * nOutputPlanes,
-				cv::Mat(kernelSize, kernelSize, CV_32FC1));
+		weights.resize(nOutputPlanes, std::vector<cv::Mat>(nInputPlanes));
 		biases = std::vector<float>(nOutputPlanes, 0.0);
 
 		if (!loadModelFromJSONObject(jsonObj)) {
