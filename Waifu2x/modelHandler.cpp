@@ -168,7 +168,7 @@ modelUtility& modelUtility::getInstance(){
 }
 
 bool modelUtility::generateModelFromJSON(const std::string &fileName,
-		std::vector<std::unique_ptr<Model> > &models) {
+		std::vector<Model> &models) {
 
 	std::ifstream jsonFile;
 
@@ -188,9 +188,7 @@ bool modelUtility::generateModelFromJSON(const std::string &fileName,
 
 	picojson::array& objectArray = jsonValue.get<picojson::array>();
 	for (auto&& obj : objectArray) {
-		std::unique_ptr<Model> m = std::unique_ptr<Model>(
-				new Model(obj.get<picojson::object>()));
-		models.push_back(std::move(m));
+		models.emplace_back(obj.get<picojson::object>());
 	}
 
 	return true;

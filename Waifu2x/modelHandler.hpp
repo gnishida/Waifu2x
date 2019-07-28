@@ -102,7 +102,7 @@ private:
 
 public:
 	static bool generateModelFromJSON(const std::string &fileName,
-			std::vector<std::unique_ptr<Model> > &models);
+			std::vector<Model> &models);
 	static modelUtility& getInstance();
 	bool setNumberOfJobs(int setNJob);
 	int getNumberOfJobs();

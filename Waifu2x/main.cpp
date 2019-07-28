@@ -86,7 +86,7 @@ int main(int argc, char** argv) {
 		std::string modelFileName(cmdModelPath.getValue());
 		modelFileName = modelFileName + "/noise"
 				+ std::to_string(cmdNRLevel.getValue()) + "_model.json";
-		std::vector<std::unique_ptr<w2xc::Model> > models;
+		std::vector<w2xc::Model> models;
 
 		if (!w2xc::modelUtility::generateModelFromJSON(modelFileName, models))
 			std::exit(-1);
@@ -118,7 +118,7 @@ int main(int argc, char** argv) {
 
 		std::string modelFileName(cmdModelPath.getValue());
 		modelFileName = modelFileName + "/scale2.0x_model.json";
-		std::vector<std::unique_ptr<w2xc::Model> > models;
+		std::vector<w2xc::Model> models;
 
 		if (!w2xc::modelUtility::generateModelFromJSON(modelFileName, models))
 			std::exit(-1);

@@ -14,12 +14,12 @@ namespace w2xc {
 
 // converting process inside program
 static bool convertWithModelsBasic(cv::Mat &inputPlane, cv::Mat &outputPlane,
-		std::vector<std::unique_ptr<Model> > &models);
+		std::vector<Model> &models);
 static bool convertWithModelsBlockSplit(cv::Mat &inputPlane,
-		cv::Mat &outputPlane, std::vector<std::unique_ptr<Model> > &models);
+		cv::Mat &outputPlane, std::vector<Model> &models);
 
 bool convertWithModels(cv::Mat &inputPlane, cv::Mat &outputPlane,
-		std::vector<std::unique_ptr<Model> > &models, bool blockSplitting) {
+		std::vector<Model> &models, bool blockSplitting) {
 
 	cv::Size blockSize = modelUtility::getInstance().getBlockSize();
 	bool requireSplitting = (inputPlane.size().width * inputPlane.size().height)
@@ -51,38 +51,33 @@ bool convertWithModels(cv::Mat &inputPlane, cv::Mat &outputPlane,
 }
 
 static bool convertWithModelsBasic(cv::Mat &inputPlane, cv::Mat &outputPlane,
-		std::vector<std::unique_ptr<Model> > &models) {
+		std::vector<Model> &models) {
 
 	// padding is require before calling this function
 
-	std::unique_ptr<std::vector<cv::Mat> > inputPlanes = std::unique_ptr<
-			std::vector<cv::Mat> >(new std::vector<cv::Mat>());
-	std::unique_ptr<std::vector<cv::Mat> > outputPlanes = std::unique_ptr<
-			std::vector<cv::Mat> >(new std::vector<cv::Mat>());
+	std::vector<cv::Mat> inputPlanes;
+	std::vector<cv::Mat> outputPlanes;
 
-	inputPlanes->clear();
-	inputPlanes->push_back(inputPlane);
+	inputPlanes.push_back(inputPlane);
 
 	for (int index = 0; index < models.size(); index++) {
 		std::cout << "Iteration #" << (index + 1) << "..." << std::endl;
-		if (!models[index]->filter(*inputPlanes, *outputPlanes)) {
+		if (!models[index].filter(inputPlanes, outputPlanes)) {
 			std::exit(-1);
 		}
 		if (index != models.size() - 1) {
-			inputPlanes = std::move(outputPlanes);
-			outputPlanes = std::unique_ptr<std::vector<cv::Mat> >(
-					new std::vector<cv::Mat>());
+			inputPlanes = outputPlanes;
 		}
 	}
 
-	outputPlanes->at(0).copyTo(outputPlane);
+	outputPlanes[0].copyTo(outputPlane);
 
 	return true;
 
 }
 
 static bool convertWithModelsBlockSplit(cv::Mat &inputPlane,
-		cv::Mat &outputPlane, std::vector<std::unique_ptr<Model> > &models) {
+		cv::Mat &outputPlane, std::vector<Model> &models) {
 
 	// padding is not required before calling this function
 
