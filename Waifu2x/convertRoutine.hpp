@@ -1,13 +1,3 @@
-/*
- * convertRoutine.hpp
- *   (ここにファイルの簡易説明を記入)
- *
- *  Created on: 2015/05/31
- *      Author: wlamigo
- * 
- *   (ここにファイルの説明を記入)
- */
-
 #ifndef CONVERTROUTINE_HPP_
 #define CONVERTROUTINE_HPP_
 

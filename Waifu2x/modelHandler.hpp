@@ -1,13 +1,3 @@
-/*
- * modelHandler.hpp
- *   (ここにファイルの簡易説明を記入)
- *
- *  Created on: 2015/05/24
- *      Author: wlamigo
- * 
- *   (ここにファイルの説明を記入)
- */
-
 #ifndef MODEL_HANDLER_HPP_
 #define MODEL_HANDLER_HPP_
 
@@ -30,9 +20,7 @@ private:
 	std::vector<float> biases;
 	int kernelSize;
 
-	Model() {
-	}
-	; // cannot use no-argument constructor
+	Model() {}
 
 	// class inside operation function
 	bool loadModelFromJSONObject(picojson::object& jsonObj);
@@ -43,45 +31,22 @@ private:
 public:
 	// ctor and dtor
 	Model(picojson::object &jsonObj) {
-		// preload nInputPlanes,nOutputPlanes, and preserve required size vector
 		nInputPlanes = static_cast<int>(jsonObj["nInputPlane"].get<double>());
 		nOutputPlanes = static_cast<int>(jsonObj["nOutputPlane"].get<double>());
-		if ((kernelSize = static_cast<int>(jsonObj["kW"].get<double>()))
-				!= static_cast<int>(jsonObj["kH"].get<double>())) {
-			std::cerr << "Error : Model-Constructor : \n"
-					"kernel in model is not square.\n"
-					"stop." << std::endl;
-			std::exit(-1);
-		} // kH == kW
-
+		kernelSize = static_cast<int>(jsonObj["kW"].get<double>());
 		weights.resize(nOutputPlanes, std::vector<cv::Mat>(nInputPlanes));
 		biases = std::vector<float>(nOutputPlanes, 0.0);
 
 		if (!loadModelFromJSONObject(jsonObj)) {
-			std::cerr
-					<< "Error : Model-Constructor : \n"
+			std::cerr << "Error : Model-Constructor : \n"
 							"something error has been occured in loading model from JSON-Object.\n"
 							"stop." << std::endl;
 			std::exit(-1);
 		}
 	}
-	;
-	~Model() {
-	}
-
-	// for debugging
-	void printWeightMatrix();
-	void printBiases();
-
-	// getter function
-	int getNInputPlanes();
-	int getNOutputPlanes();
-
-	// setter function
-
+	
 	// public operation function
 	bool filter(const std::vector<cv::Mat>& inputPlanes, std::vector<cv::Mat>& outputPlanes) const;
-
 };
 
 class modelUtility {
@@ -90,10 +55,7 @@ private:
 	static modelUtility* instance;
 	int nJob;
 	cv::Size blockSplittingSize;
-	modelUtility() :
-			nJob(4), blockSplittingSize(512,512) {
-	}
-	;
+	modelUtility() : nJob(4), blockSplittingSize(512,512) {}
 
 public:
 	static bool generateModelFromJSON(const std::string& fileName, std::vector<Model>& models);
@@ -103,7 +65,6 @@ public:
 	bool setBlockSize(cv::Size size);
 	bool setBlockSizeExp2Square(int exp);
 	cv::Size getBlockSize();
-
 };
 
 }

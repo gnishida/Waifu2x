@@ -1,13 +1,3 @@
-/*
- * convertRoutine.cpp
- *   (ここにファイルの簡易説明を記入)
- *
- *  Created on: 2015/05/31
- *      Author: wlamigo
- * 
- *   (ここにファイルの説明を記入)
- */
-
 #include "convertRoutine.hpp"
 
 namespace w2xc {
@@ -19,9 +9,8 @@ static bool convertWithModelsBlockSplit(const cv::Mat& inputPlane, cv::Mat& outp
 bool convertWithModels(const cv::Mat& inputPlane, cv::Mat& outputPlane, const std::vector<Model>& models, bool blockSplitting) {
 
 	cv::Size blockSize = modelUtility::getInstance().getBlockSize();
-	bool requireSplitting = (inputPlane.size().width * inputPlane.size().height)
-			> blockSize.width * blockSize.height * 3 / 2;
-//	requireSplitting = true;
+	bool requireSplitting = (inputPlane.size().width * inputPlane.size().height) > blockSize.width * blockSize.height * 3 / 2;
+
 	if (blockSplitting && requireSplitting) {
 		return convertWithModelsBlockSplit(inputPlane, outputPlane, models);
 	} else {
@@ -29,16 +18,12 @@ bool convertWithModels(const cv::Mat& inputPlane, cv::Mat& outputPlane, const st
 		cv::Mat tempMat;
 		int nModel = models.size();
 		cv::Size outputSize = inputPlane.size();
-		cv::copyMakeBorder(inputPlane, tempMat, nModel, nModel, nModel, nModel,
-				cv::BORDER_REPLICATE);
+		cv::copyMakeBorder(inputPlane, tempMat, nModel, nModel, nModel, nModel, cv::BORDER_REPLICATE);
 
 		bool ret = convertWithModelsBasic(tempMat, outputPlane, models);
 
-		tempMat = outputPlane(cv::Range(nModel, outputSize.height + nModel),
-				cv::Range(nModel, outputSize.width + nModel));
-		assert(
-				tempMat.size().width == outputSize.width
-						&& tempMat.size().height == outputSize.height);
+		tempMat = outputPlane(cv::Range(nModel, outputSize.height + nModel), cv::Range(nModel, outputSize.width + nModel));
+		assert(tempMat.size().width == outputSize.width && tempMat.size().height == outputSize.height);
 
 		tempMat.copyTo(outputPlane);
 
@@ -48,7 +33,6 @@ bool convertWithModels(const cv::Mat& inputPlane, cv::Mat& outputPlane, const st
 }
 
 static bool convertWithModelsBasic(const cv::Mat& inputPlane, cv::Mat& outputPlane, const std::vector<Model>& models) {
-
 	// padding is require before calling this function
 
 	std::vector<cv::Mat> inputPlanes;
@@ -67,11 +51,9 @@ static bool convertWithModelsBasic(const cv::Mat& inputPlane, cv::Mat& outputPla
 	outputPlanes[0].copyTo(outputPlane);
 
 	return true;
-
 }
 
 static bool convertWithModelsBlockSplit(const cv::Mat& inputPlane, cv::Mat& outputPlane, const std::vector<Model>& models) {
-
 	// padding is not required before calling this function
 
 	// initialize local variables
@@ -81,16 +63,11 @@ static bool convertWithModelsBlockSplit(const cv::Mat& inputPlane, cv::Mat& outp
 	//insert padding to inputPlane
 	cv::Mat tempMat;
 	cv::Size outputSize = inputPlane.size();
-	cv::copyMakeBorder(inputPlane, tempMat, nModel, nModel, nModel, nModel,
-			cv::BORDER_REPLICATE);
+	cv::copyMakeBorder(inputPlane, tempMat, nModel, nModel, nModel, nModel, cv::BORDER_REPLICATE);
 
 	// calcurate split rows/cols
-	unsigned int splitColumns = static_cast<unsigned int>(std::ceil(
-			static_cast<float>(outputSize.width)
-					/ static_cast<float>(blockSize.width - 2 * nModel)));
-	unsigned int splitRows = static_cast<unsigned int>(std::ceil(
-			static_cast<float>(outputSize.height)
-					/ static_cast<float>(blockSize.height - 2 * nModel)));
+	int32_t splitColumns = std::ceil(outputSize.width / (float)(blockSize.width - 2 * nModel));
+	int32_t splitRows = std::ceil(outputSize.height / (float)(blockSize.height - 2 * nModel));
 
 	// start to convert
 	cv::Mat processRow;
@@ -101,11 +78,9 @@ static bool convertWithModelsBlockSplit(const cv::Mat& inputPlane, cv::Mat& outp
 	outputPlane = cv::Mat::zeros(outputSize, CV_32FC1);
 	for (unsigned int r = 0; r < splitRows; r++) {
 		if (r == splitRows - 1) {
-			processRow = tempMat.rowRange(r * (blockSize.height - 2 * nModel),
-					tempMat.size().height);
+			processRow = tempMat.rowRange(r * (blockSize.height - 2 * nModel), tempMat.size().height);
 		} else {
-			processRow = tempMat.rowRange(r * (blockSize.height - 2 * nModel),
-					r * (blockSize.height - 2 * nModel) + blockSize.height);
+			processRow = tempMat.rowRange(r * (blockSize.height - 2 * nModel), r * (blockSize.height - 2 * nModel) + blockSize.height);
 		}
 		for (unsigned int c = 0; c < splitColumns; c++) {
 			if (c == splitColumns - 1) {
@@ -118,10 +93,8 @@ static bool convertWithModelsBlockSplit(const cv::Mat& inputPlane, cv::Mat& outp
 						c * (blockSize.width - 2 * nModel) + blockSize.width);
 			}
 
-			std::cout << "start process block (" << c << "," << r << ") ..."
-					<< std::endl;
-			if (!convertWithModelsBasic(processBlock, processBlockOutput,
-					models)) {
+			std::cout << "start process block (" << c << "," << r << ") ..." << std::endl;
+			if (!convertWithModelsBasic(processBlock, processBlockOutput, models)) {
 				std::cerr << "w2xc::convertWithModelsBasic()\n"
 						"in w2xc::convertWithModelsBlockSplit() : \n"
 						"something error has occured. stop." << std::endl;
@@ -129,31 +102,19 @@ static bool convertWithModelsBlockSplit(const cv::Mat& inputPlane, cv::Mat& outp
 			}
 
 			writeMatFrom = processBlockOutput(
-					cv::Range(nModel,
-							processBlockOutput.size().height - nModel),
-					cv::Range(nModel,
-							processBlockOutput.size().width - nModel));
+					cv::Range(nModel, processBlockOutput.size().height - nModel),
+					cv::Range(nModel, processBlockOutput.size().width - nModel));
 			writeMatTo = outputPlane(
 					cv::Range(r * (blockSize.height - 2 * nModel),
-							r * (blockSize.height - 2 * nModel)
-									+ processBlockOutput.size().height
-									- 2 * nModel),
+							r * (blockSize.height - 2 * nModel) + processBlockOutput.size().height - 2 * nModel),
 					cv::Range(c * (blockSize.height - 2 * nModel),
-							c * (blockSize.height - 2 * nModel)
-									+ processBlockOutput.size().width
-									- 2 * nModel));
-			assert(
-					writeMatTo.size().height == writeMatFrom.size().height
-							&& writeMatTo.size().width
-									== writeMatFrom.size().width);
+							c * (blockSize.height - 2 * nModel) + processBlockOutput.size().width - 2 * nModel));
+			assert(writeMatTo.size().height == writeMatFrom.size().height && writeMatTo.size().width == writeMatFrom.size().width);
 			writeMatFrom.copyTo(writeMatTo);
-
 		} // end process 1 column
-
 	} // end process all blocks
 
 	return true;
-
 }
 
 }

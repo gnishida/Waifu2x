@@ -1,42 +1,13 @@
-/*
- * modelHandler.cpp
- *   (ここにファイルの簡易説明を記入)
- *
- *  Created on: 2015/05/24
- *      Author: wlamigo
- * 
- *   (ここにファイルの説明を記入)
- */
-
 #include "modelHandler.hpp"
 // #include <iostream> in modelHandler.hpp
 #include <fstream>
 #include <thread>
 
 namespace w2xc {
-
-int Model::getNInputPlanes() {
-	return nInputPlanes;
-}
-
-int Model::getNOutputPlanes() {
-	return nOutputPlanes;
-}
-
+	
 bool Model::filter(const std::vector<cv::Mat>& inputPlanes, std::vector<cv::Mat>& outputPlanes) const {
-
-	if (inputPlanes.size() != nInputPlanes) {
-		std::cerr << "Error : Model-filter : \n"
-				"number of input planes mismatch." << std::endl;
-		std::cerr << inputPlanes.size() << ","
-				<< nInputPlanes << std::endl;
-		return false;
-	}
-
 	outputPlanes.clear();
-	for (int i = 0; i < nOutputPlanes; i++) {
-		outputPlanes.push_back(cv::Mat::zeros(inputPlanes[0].size(), CV_32FC1));
-	}
+	outputPlanes.resize(nOutputPlanes);
 
 	int nJob = modelUtility::getInstance().getNumberOfJobs();
 
@@ -71,7 +42,6 @@ bool Model::filter(const std::vector<cv::Mat>& inputPlanes, std::vector<cv::Mat>
 }
 
 bool Model::loadModelFromJSONObject(picojson::object& jsonObj) {
-
 	// nInputPlanes,nOutputPlanes,kernelSize have already set.
 
 	int matProgress = 0;
@@ -116,9 +86,7 @@ bool Model::filterWorker(const std::vector<cv::Mat>& inputPlanes, const std::vec
 	cv::ocl::setUseOpenCL(false); // disable OpenCL Support(temporary)
 
 	cv::Size ipSize = inputPlanes[0].size();
-	// filter processing
-	// input : inputPlanes
-	// kernel : weightMatrices
+
 	for (int opIndex = beginningIndex; opIndex < (beginningIndex + nWorks);	opIndex++) {
 		outputPlanes[opIndex] = cv::Mat::zeros(ipSize, CV_32FC1);
 
@@ -136,8 +104,7 @@ bool Model::filterWorker(const std::vector<cv::Mat>& inputPlanes, const std::vec
 		cv::max(outputPlanes[opIndex], 0.0, moreThanZero);
 		cv::min(outputPlanes[opIndex], 0.0, lessThanZero);
 		cv::scaleAdd(lessThanZero, 0.1, moreThanZero, outputPlanes[opIndex]);
-
-	} // for index
+	}
 
 	return true;
 }
@@ -152,7 +119,6 @@ modelUtility& modelUtility::getInstance(){
 }
 
 bool modelUtility::generateModelFromJSON(const std::string& fileName, std::vector<Model>& models) {
-
 	std::ifstream jsonFile;
 
 	jsonFile.open(fileName);
@@ -202,24 +168,6 @@ bool modelUtility::setBlockSizeExp2Square(int exp){
 
 cv::Size modelUtility::getBlockSize(){
 	return blockSplittingSize;
-}
-
-
-// for debugging
-
-void Model::printWeightMatrix() {
-
-	for (auto&& weightMatrix : weights) {
-		//std::cout << weightMatrix << std::endl;
-	}
-
-}
-
-void Model::printBiases() {
-
-	for (auto&& bias : biases) {
-		std::cout << bias << std::endl;
-	}
 }
 
 }
