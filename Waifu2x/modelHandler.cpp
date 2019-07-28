@@ -23,7 +23,7 @@ int Model::getNOutputPlanes() {
 	return nOutputPlanes;
 }
 
-bool Model::filter(std::vector<cv::Mat> &inputPlanes,
+bool Model::filter(const std::vector<cv::Mat> &inputPlanes,
 		std::vector<cv::Mat> &outputPlanes) {
 
 	if (inputPlanes.size() != nInputPlanes) {
@@ -114,8 +114,8 @@ bool Model::loadModelFromJSONObject(picojson::object &jsonObj) {
 	return true;
 }
 
-bool Model::filterWorker(std::vector<cv::Mat> &inputPlanes,
-		std::vector<cv::Mat> &weightMatrices,
+bool Model::filterWorker(const std::vector<cv::Mat> &inputPlanes,
+		const std::vector<cv::Mat> &weightMatrices,
 		std::vector<cv::Mat> &outputPlanes, unsigned int beginningIndex,
 		unsigned int nWorks) {
 	cv::ocl::setUseOpenCL(false); // disable OpenCL Support(temporary)

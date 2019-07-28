@@ -13,12 +13,12 @@
 namespace w2xc {
 
 // converting process inside program
-static bool convertWithModelsBasic(cv::Mat &inputPlane, cv::Mat &outputPlane,
+static bool convertWithModelsBasic(const cv::Mat &inputPlane, cv::Mat &outputPlane,
 		std::vector<Model> &models);
-static bool convertWithModelsBlockSplit(cv::Mat &inputPlane,
+static bool convertWithModelsBlockSplit(const cv::Mat &inputPlane,
 		cv::Mat &outputPlane, std::vector<Model> &models);
 
-bool convertWithModels(cv::Mat &inputPlane, cv::Mat &outputPlane,
+bool convertWithModels(const cv::Mat &inputPlane, cv::Mat &outputPlane,
 		std::vector<Model> &models, bool blockSplitting) {
 
 	cv::Size blockSize = modelUtility::getInstance().getBlockSize();
@@ -50,7 +50,7 @@ bool convertWithModels(cv::Mat &inputPlane, cv::Mat &outputPlane,
 
 }
 
-static bool convertWithModelsBasic(cv::Mat &inputPlane, cv::Mat &outputPlane,
+static bool convertWithModelsBasic(const cv::Mat &inputPlane, cv::Mat &outputPlane,
 		std::vector<Model> &models) {
 
 	// padding is require before calling this function
@@ -76,7 +76,7 @@ static bool convertWithModelsBasic(cv::Mat &inputPlane, cv::Mat &outputPlane,
 
 }
 
-static bool convertWithModelsBlockSplit(cv::Mat &inputPlane,
+static bool convertWithModelsBlockSplit(const cv::Mat &inputPlane,
 		cv::Mat &outputPlane, std::vector<Model> &models) {
 
 	// padding is not required before calling this function

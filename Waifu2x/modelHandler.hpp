@@ -38,8 +38,8 @@ private:
 	bool loadModelFromJSONObject(picojson::object& jsonObj);
 
 	// thread worker function
-	bool filterWorker(std::vector<cv::Mat> &inputPlanes,
-			std::vector<cv::Mat> &weightMatrices,
+	bool filterWorker(const std::vector<cv::Mat> &inputPlanes,
+			const std::vector<cv::Mat> &weightMatrices,
 			std::vector<cv::Mat> &outputPlanes, unsigned int beginningIndex,
 			unsigned int nWorks);
 
@@ -84,7 +84,7 @@ public:
 	// setter function
 
 	// public operation function
-	bool filter(std::vector<cv::Mat> &inputPlanes,
+	bool filter(const std::vector<cv::Mat> &inputPlanes,
 			std::vector<cv::Mat> &outputPlanes);
 
 };
