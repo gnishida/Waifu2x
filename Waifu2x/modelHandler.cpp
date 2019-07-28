@@ -140,12 +140,11 @@ bool Model::filterWorker(std::vector<cv::Mat> &inputPlanes,
 		}
 
 		cv::add(outputPlane, biases[opIndex], outputPlane);
-		cv::Mat moreThanZero = cv::Mat(ipSize,CV_32FC1,0.0);
-		cv::Mat lessThanZero = cv::Mat(ipSize,CV_32FC1,0.0);
+		cv::Mat moreThanZero = cv::Mat(ipSize, CV_32FC1);
+		cv::Mat lessThanZero = cv::Mat(ipSize, CV_32FC1);
 		cv::max(outputPlane, 0.0, moreThanZero);
 		cv::min(outputPlane, 0.0, lessThanZero);
-		cv::scaleAdd(lessThanZero, 0.1, moreThanZero, outputPlane);
-		outputPlane.copyTo(outputPlanes[opIndex]);
+		cv::scaleAdd(lessThanZero, 0.1, moreThanZero, outputPlanes[opIndex]);
 
 	} // for index
 
