@@ -61,9 +61,7 @@ static bool convertWithModelsBasic(const cv::Mat& inputPlane, cv::Mat& outputPla
 		if (!models[index].filter(inputPlanes, outputPlanes)) {
 			std::exit(-1);
 		}
-		if (index != models.size() - 1) {
-			inputPlanes = outputPlanes;
-		}
+		inputPlanes = outputPlanes;
 	}
 
 	outputPlanes[0].copyTo(outputPlane);
