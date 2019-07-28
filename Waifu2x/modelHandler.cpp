@@ -42,8 +42,6 @@ bool Model::filter(const std::vector<cv::Mat>& inputPlanes, std::vector<cv::Mat>
 }
 
 bool Model::loadModelFromJSONObject(picojson::object& jsonObj) {
-	// nInputPlanes,nOutputPlanes,kernelSize have already set.
-
 	int matProgress = 0;
 	picojson::array &wOutputPlane = jsonObj["weight"].get<picojson::array>();
 
@@ -63,15 +61,14 @@ bool Model::loadModelFromJSONObject(picojson::object& jsonObj) {
 
 				for (int index = 0; index < kernelSize; index++) {
 					weights[opIndex][ipIndex].at<float>(writingRow, index) = weightMatRow[index].get<double>();
-				} // for(weightMatRow) (writing 1 row finished)
-
-			} // for(weightMat) (writing 1 matrix finished)
+				}
+			}
 
 			ipIndex++;
-		} // for(wInputPlane) (writing matrices in set of wInputPlane finished)
+		}
 
 		opIndex++;
-	} //for(wOutputPlane) (writing all matrices finished)
+	}
 
 	// setting biases
 	picojson::array biasesData = jsonObj["bias"].get<picojson::array>();
@@ -92,7 +89,6 @@ bool Model::filterWorker(const std::vector<cv::Mat>& inputPlanes, const std::vec
 
 		for (int ipIndex = 0; ipIndex < nInputPlanes; ipIndex++) {
 			cv::Mat filterOutput = cv::Mat(ipSize, CV_32FC1);
-
 			cv::filter2D(inputPlanes[ipIndex], filterOutput, -1, weightMatrices[opIndex][ipIndex], cv::Point(-1, -1), 0.0, cv::BORDER_REPLICATE);
 
 			cv::add(outputPlanes[opIndex], filterOutput, outputPlanes[opIndex]);
@@ -111,8 +107,8 @@ bool Model::filterWorker(const std::vector<cv::Mat>& inputPlanes, const std::vec
 
 modelUtility * modelUtility::instance = nullptr;
 
-modelUtility& modelUtility::getInstance(){
-	if(instance == nullptr){
+modelUtility& modelUtility::getInstance() {
+	if (instance == nullptr) {
 		instance = new modelUtility();
 	}
 	return *instance;
@@ -143,24 +139,24 @@ bool modelUtility::generateModelFromJSON(const std::string& fileName, std::vecto
 	return true;
 }
 
-bool modelUtility::setNumberOfJobs(int setNJob){
-	if(setNJob < 1)return false;
+bool modelUtility::setNumberOfJobs(int setNJob) {
+	if (setNJob < 1) return false;
 	nJob = setNJob;
 	return true;
 };
 
-int modelUtility::getNumberOfJobs(){
+int modelUtility::getNumberOfJobs() {
 	return nJob;
 }
 
-bool modelUtility::setBlockSize(cv::Size size){
+bool modelUtility::setBlockSize(cv::Size size) {
 	if(size.width < 0 || size.height < 0)return false;
 	blockSplittingSize = size;
 	return true;
 }
 
-bool modelUtility::setBlockSizeExp2Square(int exp){
-	if(exp < 0)return false;
+bool modelUtility::setBlockSizeExp2Square(int exp) {
+	if (exp < 0) return false;
 	int length = std::pow(2, exp);
 	blockSplittingSize = cv::Size(length, length);
 	return true;
