@@ -129,28 +129,22 @@ bool Model::filterWorker(std::vector<cv::Mat> &inputPlanes,
 
 		int wMatIndex = nInputPlanes * opIndex;
 		cv::Mat outputPlane = cv::Mat::zeros(ipSize, CV_32FC1);
-		cv::UMat uIntermediatePlane = outputPlane.getUMat(cv::ACCESS_WRITE); // all zero matrix
 
 		for (int ipIndex = 0; ipIndex < nInputPlanes; ipIndex++) {
-			cv::UMat uInputPlane = inputPlanes[ipIndex].getUMat(
-					cv::ACCESS_READ);
-			cv::UMat weightMatrix = weightMatrices[wMatIndex + ipIndex].getUMat(
-					cv::ACCESS_READ);
-			cv::UMat filterOutput = cv::UMat(ipSize, CV_32FC1);
+			cv::Mat filterOutput = cv::Mat(ipSize, CV_32FC1);
 
-			cv::filter2D(uInputPlane, filterOutput, -1, weightMatrix,
+			cv::filter2D(inputPlanes[ipIndex], filterOutput, -1, weightMatrices[wMatIndex + ipIndex],
 					cv::Point(-1, -1), 0.0, cv::BORDER_REPLICATE);
 
-			cv::add(uIntermediatePlane, filterOutput, uIntermediatePlane);
+			cv::add(outputPlane, filterOutput, outputPlane);
 		}
 
-		cv::add(uIntermediatePlane, biases[opIndex], uIntermediatePlane);
+		cv::add(outputPlane, biases[opIndex], outputPlane);
 		cv::UMat moreThanZero = cv::UMat(ipSize,CV_32FC1,0.0);
 		cv::UMat lessThanZero = cv::UMat(ipSize,CV_32FC1,0.0);
-		cv::max(uIntermediatePlane, 0.0, moreThanZero);
-		cv::min(uIntermediatePlane, 0.0, lessThanZero);
-		cv::scaleAdd(lessThanZero, 0.1, moreThanZero, uIntermediatePlane);
-		outputPlane = uIntermediatePlane.getMat(cv::ACCESS_READ);
+		cv::max(outputPlane, 0.0, moreThanZero);
+		cv::min(outputPlane, 0.0, lessThanZero);
+		cv::scaleAdd(lessThanZero, 0.1, moreThanZero, outputPlane);
 		outputPlane.copyTo(outputPlanes[opIndex]);
 
 	} // for index
