@@ -105,7 +105,7 @@ bool Model::filterWorker(const std::vector<cv::Mat>& inputPlanes, const std::vec
 	return true;
 }
 
-modelUtility * modelUtility::instance = nullptr;
+modelUtility* modelUtility::instance = nullptr;
 
 modelUtility& modelUtility::getInstance() {
 	if (instance == nullptr) {
