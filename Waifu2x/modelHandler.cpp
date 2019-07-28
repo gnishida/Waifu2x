@@ -23,8 +23,7 @@ int Model::getNOutputPlanes() {
 	return nOutputPlanes;
 }
 
-bool Model::filter(const std::vector<cv::Mat> &inputPlanes,
-		std::vector<cv::Mat> &outputPlanes) {
+bool Model::filter(const std::vector<cv::Mat>& inputPlanes, std::vector<cv::Mat>& outputPlanes) const {
 
 	if (inputPlanes.size() != nInputPlanes) {
 		std::cerr << "Error : Model-filter : \n"
@@ -71,7 +70,7 @@ bool Model::filter(const std::vector<cv::Mat> &inputPlanes,
 	return true;
 }
 
-bool Model::loadModelFromJSONObject(picojson::object &jsonObj) {
+bool Model::loadModelFromJSONObject(picojson::object& jsonObj) {
 
 	// nInputPlanes,nOutputPlanes,kernelSize have already set.
 
@@ -114,10 +113,7 @@ bool Model::loadModelFromJSONObject(picojson::object &jsonObj) {
 	return true;
 }
 
-bool Model::filterWorker(const std::vector<cv::Mat> &inputPlanes,
-		const std::vector<cv::Mat> &weightMatrices,
-		std::vector<cv::Mat> &outputPlanes, unsigned int beginningIndex,
-		unsigned int nWorks) {
+bool Model::filterWorker(const std::vector<cv::Mat>& inputPlanes, const std::vector<cv::Mat>& weightMatrices, std::vector<cv::Mat>& outputPlanes, unsigned int beginningIndex, unsigned int nWorks) const {
 	cv::ocl::setUseOpenCL(false); // disable OpenCL Support(temporary)
 
 	cv::Size ipSize = inputPlanes[0].size();
@@ -160,8 +156,7 @@ modelUtility& modelUtility::getInstance(){
 	return *instance;
 }
 
-bool modelUtility::generateModelFromJSON(const std::string &fileName,
-		std::vector<Model> &models) {
+bool modelUtility::generateModelFromJSON(const std::string& fileName, std::vector<Model>& models) {
 
 	std::ifstream jsonFile;
 

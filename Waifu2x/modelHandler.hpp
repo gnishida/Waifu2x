@@ -38,10 +38,7 @@ private:
 	bool loadModelFromJSONObject(picojson::object& jsonObj);
 
 	// thread worker function
-	bool filterWorker(const std::vector<cv::Mat> &inputPlanes,
-			const std::vector<cv::Mat> &weightMatrices,
-			std::vector<cv::Mat> &outputPlanes, unsigned int beginningIndex,
-			unsigned int nWorks);
+	bool filterWorker(const std::vector<cv::Mat>& inputPlanes, const std::vector<cv::Mat>& weightMatrices, std::vector<cv::Mat>& outputPlanes, unsigned int beginningIndex, unsigned int nWorks) const;
 
 public:
 	// ctor and dtor
@@ -84,8 +81,7 @@ public:
 	// setter function
 
 	// public operation function
-	bool filter(const std::vector<cv::Mat> &inputPlanes,
-			std::vector<cv::Mat> &outputPlanes);
+	bool filter(const std::vector<cv::Mat>& inputPlanes, std::vector<cv::Mat>& outputPlanes) const;
 
 };
 
@@ -101,8 +97,7 @@ private:
 	;
 
 public:
-	static bool generateModelFromJSON(const std::string &fileName,
-			std::vector<Model> &models);
+	static bool generateModelFromJSON(const std::string& fileName, std::vector<Model>& models);
 	static modelUtility& getInstance();
 	bool setNumberOfJobs(int setNJob);
 	int getNumberOfJobs();

@@ -22,10 +22,7 @@ namespace w2xc {
 /**
  * convert inputPlane to outputPlane by convoluting with models.
  */
-bool convertWithModels(const cv::Mat &inputPlanes,
-		cv::Mat &outputPlanes,
-		std::vector<Model> &models,
-		bool blockSplitting = true);
+bool convertWithModels(const cv::Mat& inputPlanes, cv::Mat &outputPlanes, const std::vector<Model>& models, bool blockSplitting = true);
 
 }
 
