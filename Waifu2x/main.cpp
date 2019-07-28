@@ -19,8 +19,11 @@
 
 #include "modelHandler.hpp"
 #include "convertRoutine.hpp"
+#include <time.h>
 
 int main(int argc, char** argv) {
+
+	time_t start = clock();
 
 	// definition of command line arguments
 	TCLAP::CmdLine cmd("waifu2x reimplementation using OpenCV", ' ', "1.0.0");
@@ -190,6 +193,8 @@ int main(int argc, char** argv) {
 	cv::imwrite(outputFileName, image);
 
 	std::cout << "process successfully done!" << std::endl;
+	time_t end = clock();
+	std::cout << (double)(end - start) / CLOCKS_PER_SEC << " sec" << std::endl;
 
 	return 0;
 }
