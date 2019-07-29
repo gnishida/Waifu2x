@@ -1,0 +1,7 @@
+*~
+appendix/*~
+appendix/waifu2x-nocuda/*~
+appendix/waifu2x-nocuda/lib/*~
+
+/Debug/
+/Release/
