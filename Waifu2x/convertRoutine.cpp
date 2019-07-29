@@ -7,6 +7,8 @@ static bool convertWithModelsBasic(const cv::Mat& inputPlane, cv::Mat& outputPla
 static bool convertWithModelsBlockSplit(const cv::Mat& inputPlane, cv::Mat& outputPlane, const std::vector<Model>& models);
 
 bool convertWithModels(const cv::Mat& inputPlane, cv::Mat& outputPlane, const std::vector<Model>& models, bool blockSplitting) {
+	return convertWithModelsBasic(inputPlane, outputPlane, models);
+	/*
 	constexpr int32_t blockSize = 512;
 	bool requireSplitting = (inputPlane.size().width * inputPlane.size().height) > blockSize * blockSize * 3 / 2;
 
@@ -27,7 +29,7 @@ bool convertWithModels(const cv::Mat& inputPlane, cv::Mat& outputPlane, const st
 
 		return ret;
 	}
-
+	*/
 }
 
 static bool convertWithModelsBasic(const cv::Mat& inputPlane, cv::Mat& outputPlane, const std::vector<Model>& models) {
