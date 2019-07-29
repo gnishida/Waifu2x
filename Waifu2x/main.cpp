@@ -1,20 +1,10 @@
-/*
- * main.cpp
- *   (ここにファイルの簡易説明を記入)
- *
- *  Created on: 2015/05/24
- *      Author: wlamigo
- * 
- *   (ここにファイルの説明を記入)
- */
-
 #include <opencv2/opencv.hpp>
 #include <iostream>
 #include <sstream>
 #include <fstream>
 #include <string>
 #include <cmath>
-#include "picojson.h"
+#include "json.h"
 #include "tclap/CmdLine.h"
 
 #include "modelHandler.hpp"

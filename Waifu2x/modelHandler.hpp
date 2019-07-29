@@ -3,7 +3,7 @@
 
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/ocl.hpp>
-#include "picojson.h"
+#include "json.h"
 #include <iostream>
 #include <memory>
 #include <cstdint>
@@ -23,17 +23,17 @@ private:
 	Model() {}
 
 	// class inside operation function
-	bool loadModelFromJSONObject(picojson::object& jsonObj);
+	bool loadModelFromJSONObject(const nlohmann::json& jsonObj);
 
 	// thread worker function
 	bool filterWorker(const std::vector<cv::Mat>& inputPlanes, const std::vector<std::vector<cv::Mat>>& weightMatrices, std::vector<cv::Mat>& outputPlanes, unsigned int beginningIndex, unsigned int nWorks) const;
 
 public:
 	// ctor and dtor
-	Model(picojson::object &jsonObj) {
-		nInputPlanes = static_cast<int>(jsonObj["nInputPlane"].get<double>());
-		nOutputPlanes = static_cast<int>(jsonObj["nOutputPlane"].get<double>());
-		kernelSize = static_cast<int>(jsonObj["kW"].get<double>());
+	Model(const nlohmann::json& jsonObj) {
+		nInputPlanes = jsonObj["nInputPlane"].get<double>();
+		nOutputPlanes = jsonObj["nOutputPlane"].get<double>();
+		kernelSize = jsonObj["kW"].get<double>();
 		weights.resize(nOutputPlanes, std::vector<cv::Mat>(nInputPlanes));
 		biases = std::vector<float>(nOutputPlanes, 0.0);
 

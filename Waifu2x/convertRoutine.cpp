@@ -22,7 +22,6 @@ bool convertWithModels(const cv::Mat& inputPlane, cv::Mat& outputPlane, const st
 		bool ret = convertWithModelsBasic(tempMat, outputPlane, models);
 
 		tempMat = outputPlane(cv::Range(nModel, outputSize.height + nModel), cv::Range(nModel, outputSize.width + nModel));
-		assert(tempMat.size().width == outputSize.width && tempMat.size().height == outputSize.height);
 
 		tempMat.copyTo(outputPlane);
 
@@ -32,7 +31,7 @@ bool convertWithModels(const cv::Mat& inputPlane, cv::Mat& outputPlane, const st
 }
 
 static bool convertWithModelsBasic(const cv::Mat& inputPlane, cv::Mat& outputPlane, const std::vector<Model>& models) {
-	// padding is require before calling this function
+	// padding is required before calling this function
 
 	std::vector<cv::Mat> inputPlanes = { inputPlane };
 	std::vector<cv::Mat> outputPlanes;
@@ -106,7 +105,6 @@ static bool convertWithModelsBlockSplit(const cv::Mat& inputPlane, cv::Mat& outp
 							r * (blockSize.height - 2 * nModel) + processBlockOutput.size().height - 2 * nModel),
 					cv::Range(c * (blockSize.height - 2 * nModel),
 							c * (blockSize.height - 2 * nModel) + processBlockOutput.size().width - 2 * nModel));
-			assert(writeMatTo.size().height == writeMatFrom.size().height && writeMatTo.size().width == writeMatFrom.size().width);
 			writeMatFrom.copyTo(writeMatTo);
 		}
 	}

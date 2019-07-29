@@ -1,5 +1,4 @@
 #include "modelHandler.hpp"
-// #include <iostream> in modelHandler.hpp
 #include <fstream>
 #include <thread>
 
@@ -41,39 +40,28 @@ bool Model::filter(const std::vector<cv::Mat>& inputPlanes, std::vector<cv::Mat>
 	return true;
 }
 
-bool Model::loadModelFromJSONObject(picojson::object& jsonObj) {
+bool Model::loadModelFromJSONObject(const nlohmann::json& jsonObj) {
 	int matProgress = 0;
-	picojson::array &wOutputPlane = jsonObj["weight"].get<picojson::array>();
 
-	// setting weight matrices
-	int32_t opIndex = 0;
-	for (auto&& wInputPlaneV : wOutputPlane) {
-		picojson::array &wInputPlane = wInputPlaneV.get<picojson::array>();
+	for (int32_t opIndex = 0; opIndex < jsonObj["weight"].size(); opIndex++) {
+		nlohmann::json wOutputPlane = jsonObj["weight"][opIndex];
 
-		int32_t ipIndex = 0;
-		for (auto&& weightMatV : wInputPlane) {
-			picojson::array &weightMat = weightMatV.get<picojson::array>();
+		for (int32_t ipIndex = 0; ipIndex < wOutputPlane.size(); ipIndex++) {
+			nlohmann::json wInputPlane = wOutputPlane[ipIndex];
+
 			weights[opIndex][ipIndex] = cv::Mat::zeros(kernelSize, kernelSize, CV_32FC1);
 
-			for (int writingRow = 0; writingRow < kernelSize; writingRow++) {
-				auto& weightMatRowV = weightMat.at(writingRow);
-				picojson::array &weightMatRow = weightMatRowV.get<picojson::array>();
-
-				for (int index = 0; index < kernelSize; index++) {
-					weights[opIndex][ipIndex].at<float>(writingRow, index) = weightMatRow[index].get<double>();
+			for (int r = 0; r < kernelSize; r++) {
+				for (int c = 0; c < kernelSize; c++) {
+					weights[opIndex][ipIndex].at<float>(r, c) = wInputPlane[r][c].get<double>();
 				}
 			}
-
-			ipIndex++;
 		}
-
-		opIndex++;
 	}
 
 	// setting biases
-	picojson::array biasesData = jsonObj["bias"].get<picojson::array>();
 	for (int index = 0; index < nOutputPlanes; index++) {
-		biases[index] = biasesData[index].get<double>();
+		biases[index] = jsonObj["bias"][index].get<double>();
 	}
 
 	return true;
@@ -115,25 +103,18 @@ modelUtility& modelUtility::getInstance() {
 }
 
 bool modelUtility::generateModelFromJSON(const std::string& fileName, std::vector<Model>& models) {
-	std::ifstream jsonFile;
+	std::ifstream jsonFile(fileName);
 
-	jsonFile.open(fileName);
 	if (!jsonFile.is_open()) {
 		std::cerr << "Error : couldn't open " << fileName << std::endl;
 		return false;
 	}
 
-	picojson::value jsonValue;
+	nlohmann::json jsonValue;
 	jsonFile >> jsonValue;
-	std::string errMsg = picojson::get_last_error();
-	if (!errMsg.empty()) {
-		std::cerr << "Error : PicoJSON Error : " << errMsg << std::endl;
-		return false;
-	}
 
-	picojson::array& objectArray = jsonValue.get<picojson::array>();
-	for (auto&& obj : objectArray) {
-		models.emplace_back(obj.get<picojson::object>());
+	for (const auto& obj : jsonValue) {
+		models.emplace_back(obj);
 	}
 
 	return true;
