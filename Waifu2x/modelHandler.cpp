@@ -8,7 +8,7 @@ bool Model::filter(const std::vector<cv::Mat>& inputPlanes, std::vector<cv::Mat>
 	outputPlanes.clear();
 	outputPlanes.resize(nOutputPlanes);
 
-	int nJob = modelUtility::getInstance().getNumberOfJobs();
+	constexpr int nJob = 4;
 
 	// filter job issuing
 	std::vector<std::thread> workerThreads;
@@ -17,19 +17,14 @@ bool Model::filter(const std::vector<cv::Mat>& inputPlanes, std::vector<cv::Mat>
 		if (!(idx == (nJob - 1) && worksPerThread * nJob != nOutputPlanes)) {
 			workerThreads.push_back(
 					std::thread(&Model::filterWorker, this,
-							std::ref(inputPlanes), std::ref(weights),
-							std::ref(outputPlanes),
-							static_cast<unsigned int>(worksPerThread * idx),
-							static_cast<unsigned int>(worksPerThread)));
+							std::ref(inputPlanes), std::ref(weights), std::ref(outputPlanes),
+							worksPerThread * idx, worksPerThread));
 		} else {
 			// worksPerThread * nJob != nOutputPlanes
 			workerThreads.push_back(
 					std::thread(&Model::filterWorker, this,
-							std::ref(inputPlanes), std::ref(weights),
-							std::ref(outputPlanes),
-							static_cast<unsigned int>(worksPerThread * idx),
-							static_cast<unsigned int>(nOutputPlanes
-									- worksPerThread * idx)));
+							std::ref(inputPlanes), std::ref(weights), std::ref(outputPlanes),
+							worksPerThread * idx, nOutputPlanes - worksPerThread * idx));
 		}
 	}
 	// wait for finishing jobs
@@ -93,16 +88,7 @@ bool Model::filterWorker(const std::vector<cv::Mat>& inputPlanes, const std::vec
 	return true;
 }
 
-modelUtility* modelUtility::instance = nullptr;
-
-modelUtility& modelUtility::getInstance() {
-	if (instance == nullptr) {
-		instance = new modelUtility();
-	}
-	return *instance;
-}
-
-bool modelUtility::generateModelFromJSON(const std::string& fileName, std::vector<Model>& models) {
+bool Model::generateModelFromJSON(const std::string& fileName, std::vector<Model>& models) {
 	std::ifstream jsonFile(fileName);
 
 	if (!jsonFile.is_open()) {
@@ -118,33 +104,6 @@ bool modelUtility::generateModelFromJSON(const std::string& fileName, std::vecto
 	}
 
 	return true;
-}
-
-bool modelUtility::setNumberOfJobs(int setNJob) {
-	if (setNJob < 1) return false;
-	nJob = setNJob;
-	return true;
-};
-
-int modelUtility::getNumberOfJobs() {
-	return nJob;
-}
-
-bool modelUtility::setBlockSize(cv::Size size) {
-	if(size.width < 0 || size.height < 0)return false;
-	blockSplittingSize = size;
-	return true;
-}
-
-bool modelUtility::setBlockSizeExp2Square(int exp) {
-	if (exp < 0) return false;
-	int length = std::pow(2, exp);
-	blockSplittingSize = cv::Size(length, length);
-	return true;
-}
-
-cv::Size modelUtility::getBlockSize(){
-	return blockSplittingSize;
 }
 
 }

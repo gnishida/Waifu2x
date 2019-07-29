@@ -9,12 +9,12 @@
 #include "convertRoutine.hpp"
 #include <time.h>
 
-bool superres(cv::Mat input, float scale, cv::Mat& output) {
+bool superres(cv::Mat input, cv::Mat& output, float scale, bool noise_reduction) {
 	// noise reduction
-	{
+	if (noise_reduction) {
 		std::string modelFileName = "models/noise1_model.json";
 		std::vector<w2xc::Model> models;
-		if (!w2xc::modelUtility::generateModelFromJSON(modelFileName, models)) {
+		if (!w2xc::Model::generateModelFromJSON(modelFileName, models)) {
 			return false;
 		}
 
@@ -31,7 +31,7 @@ bool superres(cv::Mat input, float scale, cv::Mat& output) {
 	// scaling
 	{
 		// calculate iteration times of 2x scaling and shrink ratio which will use at last
-		int iterTimesTwiceScaling = static_cast<int>(std::ceil(std::log2(scale)));
+		int iterTimesTwiceScaling = std::ceil(std::log2(scale));
 		double shrinkRatio = 0.0;
 		if ((int32_t)scale != std::pow(2, iterTimesTwiceScaling)) {
 			shrinkRatio = scale	/ std::pow(2.0, iterTimesTwiceScaling);
@@ -40,7 +40,7 @@ bool superres(cv::Mat input, float scale, cv::Mat& output) {
 		std::string modelFileName = "models/scale2.0x_model.json";
 		std::vector<w2xc::Model> models;
 
-		if (!w2xc::modelUtility::generateModelFromJSON(modelFileName, models)) {
+		if (!w2xc::Model::generateModelFromJSON(modelFileName, models)) {
 			return false;
 		}
 
@@ -69,7 +69,7 @@ bool superres(cv::Mat input, float scale, cv::Mat& output) {
 			if (!w2xc::convertWithModels(imageY, imageSplit[0], models)) {
 				std::cerr << "w2xc::convertWithModels : something error has occured.\nstop." << std::endl;
 				return false;
-			};
+			}
 
 			cv::merge(imageSplit, input);
 
@@ -77,12 +77,8 @@ bool superres(cv::Mat input, float scale, cv::Mat& output) {
 
 		if (shrinkRatio != 0.0) {
 			cv::Size lastImageSize = input.size();
-			lastImageSize.width =
-				static_cast<int>(static_cast<double>(lastImageSize.width
-					* shrinkRatio));
-			lastImageSize.height =
-				static_cast<int>(static_cast<double>(lastImageSize.height
-					* shrinkRatio));
+			lastImageSize.width = lastImageSize.width * shrinkRatio;
+			lastImageSize.height = lastImageSize.height * shrinkRatio;
 			cv::resize(input, input, lastImageSize, 0, 0, cv::INTER_LINEAR);
 		}
 	}
@@ -102,7 +98,7 @@ int main(int argc, char** argv) {
 	cv::cvtColor(image, image, cv::COLOR_RGB2YUV);
 
 	cv::Mat result;
-	if (superres(image, 2.0f, result)) {
+	if (superres(image, result, 2.0f, false)) {
 		cv::imwrite("../result.png", result);
 
 		std::cout << "process successfully done!" << std::endl;

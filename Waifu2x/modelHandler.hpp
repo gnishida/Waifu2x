@@ -29,7 +29,6 @@ private:
 	bool filterWorker(const std::vector<cv::Mat>& inputPlanes, const std::vector<std::vector<cv::Mat>>& weightMatrices, std::vector<cv::Mat>& outputPlanes, unsigned int beginningIndex, unsigned int nWorks) const;
 
 public:
-	// ctor and dtor
 	Model(const nlohmann::json& jsonObj) {
 		nInputPlanes = jsonObj["nInputPlane"].get<double>();
 		nOutputPlanes = jsonObj["nOutputPlane"].get<double>();
@@ -47,24 +46,8 @@ public:
 	
 	// public operation function
 	bool filter(const std::vector<cv::Mat>& inputPlanes, std::vector<cv::Mat>& outputPlanes) const;
-};
 
-class modelUtility {
-
-private:
-	static modelUtility* instance;
-	int nJob;
-	cv::Size blockSplittingSize;
-	modelUtility() : nJob(4), blockSplittingSize(512,512) {}
-
-public:
 	static bool generateModelFromJSON(const std::string& fileName, std::vector<Model>& models);
-	static modelUtility& getInstance();
-	bool setNumberOfJobs(int setNJob);
-	int getNumberOfJobs();
-	bool setBlockSize(cv::Size size);
-	bool setBlockSizeExp2Square(int exp);
-	cv::Size getBlockSize();
 };
 
 }
